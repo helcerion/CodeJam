@@ -1,3 +1,5 @@
+from os import path
+from sys import argv
 '''
 Problem
  You recive a credit C at a local sotre and would like to buy two items. You first walk
@@ -46,22 +48,20 @@ class StoreCredit(object):
     
     def __init__(self, *args):
         super(StoreCredit, self).__init__(*args)
-        
-    def setCredit(self, credit):
-        self._credit = self._checkCredit(credit)
-        
+
     def setListSize(self, size):
         self._store_size = size
         
     def setItemsList(self, list):
         self._store = self._checkStoreList(list)
         
-    def buyItems(self):
+    def buyItems(self, credit):
+        self._checkCredit(credit)
         items = []
         for index_a, item_a in enumerate(self._store, 1):
-            if item_a < self._credit:
+            if int(item_a) < credit:
                 for index_b, item_b in enumerate(self._store[index_a:], index_a + 1):
-                    if (item_a + item_b) == self._credit:
+                    if (int(item_a) + int(item_b)) == credit:
                         items.append(index_a)
                         items.append(index_b)
                         break 
@@ -72,25 +72,30 @@ class StoreCredit(object):
             raise Exception('Credit out of limit')
         return credit
             
-    def _checkStoreList(self, list):
-        if len(list) != self._store_size:
+    def _checkStoreList(self, store_list):
+        if len(store_list) != self._store_size:
             raise Exception('Incorrect number of items')
-        for price in list:
-            self._checkProductPrice(price)
-        return list
+        for price in store_list:
+            self._checkProductPrice(int(price))
+        return store_list
             
     def _checkProductPrice(self, price):
         if not (1 <= price <= 1000):
-            raise Exception('Price out of limit')
+            raise Exception('Price ' + str(price) + ' out of limit')
         
 def main():
     # Parsear el fichero con el input
+    file_input = open(path.realpath(argv[1]))
+    number_of_cases = int(file_input.readline())
     store = StoreCredit()
-    store.setCredit(200)
-    store.setListSize(7)
-    store.setItemsList((150, 24, 79, 50, 88, 345, 3))
-    items = store.buyItems()
-    print items
+    for case in range(1, number_of_cases + 1):
+        amount = int(file_input.readline())
+        number_of_items = int(file_input.readline())
+        items_list = (file_input.readline()).split()
+        store.setListSize(number_of_items)
+        store.setItemsList(items_list)
+        items = store.buyItems(amount)
+        print 'case #' + str(case) + ':', items[0], items[1]
     pass
             
 if __name__ == "__main__":
